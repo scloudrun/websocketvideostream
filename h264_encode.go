@@ -5,17 +5,16 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"websocket/internal/encoders"
-	"websocket/internal/rdisplay"
 	"image"
 	"image/draw"
 	"io/ioutil"
 	"net"
 	"os"
 	"unsafe"
+	"websocket/internal/encoders"
+	"websocket/internal/rdisplay"
 
 	"github.com/nfnt/resize"
-
 )
 
 //go build -tags "h264enc" cmd/h264_encode.go
@@ -37,19 +36,19 @@ func init() {
 
 }
 
-func getEncode(v string) ([]byte,error){
+func getEncode(v string) ([]byte, error) {
 	size, err := Encoder.VideoSize()
-	if err !=nil {
-		fmt.Println(size,err)
+	if err != nil {
+		fmt.Println(size, err)
 	}
 	frame, err := getImage(v) //30ms - 50ms
-	if err !=nil {
+	if err != nil {
 		fmt.Println(err)
-		return nil,err
+		return nil, err
 	}
-	resized := resizeImage(frame, size) //80ms-110ms
+	resized := resizeImage(frame, size)     //80ms-110ms
 	payload, err := Encoder.Encode(resized) //50ms - 100ms
-	return payload,err
+	return payload, err
 }
 
 func initEncoder() {
@@ -224,5 +223,3 @@ func BytesToInt(b []byte) int {
 
 	return int(x)
 }
-
-

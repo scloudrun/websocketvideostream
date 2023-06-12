@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
-	"flag"
 	"path/filepath"
 
 	"golang.org/x/net/websocket"
@@ -23,7 +23,6 @@ func wsH264(ws *websocket.Conn) {
 	for {
 		time.Sleep(100 * time.Millisecond)
 
-
 		if num == 20 {
 			initEncoder()
 			fmt.Println("new encoder")
@@ -32,18 +31,18 @@ func wsH264(ws *websocket.Conn) {
 
 		if Mode == "local" {
 			files := FileWalk("/data/local/tmp/h264img")
-			for i:=0;i< 200;i++ {
+			for i := 0; i < 200; i++ {
 				time.Sleep(100 * time.Millisecond)
-				fmt.Println("here i",i)
+				fmt.Println("here i", i)
 				if len(files) >= 2 {
 					file := files[len(files)-2]
 					file = files[i]
 					fileByte, err := getEncode(file)
-					if err !=nil || len(fileByte) == 0 {
-						return 
+					if err != nil || len(fileByte) == 0 {
+						return
 					}
 					err = websocket.Message.Send(ws, fileByte)
-					fmt.Println("here",file,err)
+					fmt.Println("here", file, err)
 					if err != nil {
 						log.Println(err)
 						break
@@ -57,7 +56,7 @@ func wsH264(ws *websocket.Conn) {
 			if len(files) >= 2 {
 				file := files[len(files)-2]
 				fileByte, err := getEncode(file)
-				if err !=nil || len(fileByte) == 0 {
+				if err != nil || len(fileByte) == 0 {
 					continue
 				}
 				err = websocket.Message.Send(ws, fileByte)
@@ -164,7 +163,8 @@ func main() {
 		Mode = "local"
 	}
 
-	fmt.Println("here start mode ",Mode)
+	fmt.Println("here start mode ", Mode)
+
 	http.Handle("/wsh264", websocket.Handler(wsH264))
 	http.Handle("/wsmpeg", websocket.Handler(wsMpeg1))
 	http.Handle("/wsflv", websocket.Handler(wsflv))
