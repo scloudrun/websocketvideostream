@@ -51,6 +51,7 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				break
 			}
+			//c.SetWriteDeadline(time.Now().Add())
 		}
 	}
 	log.Println("send over socket\n")

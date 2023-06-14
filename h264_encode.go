@@ -38,11 +38,10 @@ func Init() {
 func getEncode(v string) ([]byte, error) {
 	size, err := Encoder.VideoSize()
 	if err != nil {
-		fmt.Println(size, err)
+		return nil, err
 	}
 	frame, err := getImage(v) //30ms - 50ms
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	resized := resizeImage(frame, size)     //80ms-110ms
