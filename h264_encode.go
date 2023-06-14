@@ -24,15 +24,14 @@ var (
 	Encoder encoders.Encoder
 )
 
-func init() {
+func Init() {
 	initEncoder()
-	fmt.Println("init")
 	_, err := Encoder.VideoSize()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	go rdisplay.InitCrontab(10)
+	go rdisplay.InitCrontab(String2Int(frame))
 
 }
 
