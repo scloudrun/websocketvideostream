@@ -7,17 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 	"time"
-
-	"github.com/bitfield/script"
 )
-
-// RunShell def
-func RunShell(cmd string) (string, error) {
-	p := script.Exec(cmd)
-	output, err := p.String()
-	p.Close()
-	return output, err
-}
 
 // ShellToUse def
 const ShellToUse = "sh"
@@ -93,6 +83,7 @@ func remove() {
 				}
 			}
 		}
+		/**
 		files = FileWalk(h264EncPath)
 		if len(files) > 3 {
 			for k, v := range files {
@@ -105,6 +96,7 @@ func remove() {
 				}
 			}
 		}
+		**/
 		<-ticker.C
 	}
 }

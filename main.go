@@ -2,11 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"runtime"
 
 	"golang.org/x/net/websocket"
+	"websocket/internal/rdisplay"
 
 	"log"
 	"net/http"
@@ -15,10 +17,14 @@ import (
 	"time"
 )
 
-var path, port, frame string
+var (
+	runStatus         bool
+	path, port, frame string
+)
 
 func wsH264(ws *websocket.Conn) {
 	Init()
+	runStatus = true
 	num := 1
 	diff := 1000 / String2Int(frame)
 	defer ws.Close()
@@ -45,14 +51,18 @@ func wsH264(ws *websocket.Conn) {
 		}
 	}
 	log.Println("send over socket\n")
-	if Encoder != nil {
-		Encoder.Close()
+	if Encoder != nil && runStatus {
+		//Encoder.Close()
+		//runStatus = false
 	}
 }
 
 func close(w http.ResponseWriter, r *http.Request) {
-	if Encoder != nil {
+	if Encoder != nil && runStatus {
+		runStatus = false
+		fmt.Println("here close 1 ", time.Now().UnixNano(), runStatus)
 		Encoder.Close()
+		fmt.Println("here close 2 ", time.Now().UnixNano(), runStatus)
 	}
 	w.Write([]byte("close"))
 }
@@ -78,6 +88,7 @@ func main() {
 	http.Handle("/api/stop", http.HandlerFunc(close))
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
+	go rdisplay.InitCrontab(String2Int(frame))
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())

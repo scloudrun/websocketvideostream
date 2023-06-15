@@ -31,7 +31,6 @@ func Init() {
 		fmt.Println(err)
 		return
 	}
-	go rdisplay.InitCrontab(String2Int(frame))
 
 }
 

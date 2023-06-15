@@ -221,11 +221,17 @@ func superSampling(inputImage image.Image) image.Image {
 	return rgba.SubImage(rect)
 }
 
+func GetDateTimeString() string {
+	format := "2006-01-02 15:04:05"
+	stringTimeFormat := time.Now().Format(format)
+	return stringTimeFormat
+}
+
 // FileWalk def
 func FileWalk(fileDir string) []string {
 	start, err := os.Stat(fileDir)
 	if err != nil || !start.IsDir() {
-		fmt.Printf("RecoverFromFile fileWalk no is a dir [%v]", err)
+		fmt.Printf("RecoverFromFile [%s] fileWalk no is a dir [%v]\n", GetDateTimeString(), err)
 		return nil
 	}
 	var targets []string

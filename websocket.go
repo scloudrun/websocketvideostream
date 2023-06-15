@@ -25,10 +25,16 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 	Init()
+	delta := time.Duration(1000/String2Int(frame)) * time.Millisecond
+	runStatus = true
 	num := 1
-	diff := 1000 / String2Int(frame)
+	log.Println("wsH264 start", runStatus)
 	for {
-		time.Sleep(time.Duration(diff) * time.Millisecond)
+		startedAt := time.Now()
+		if runStatus == false {
+			log.Println("runStatus false break")
+			break
+		}
 
 		if num == 20 {
 			initEncoder()
@@ -53,9 +59,18 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 			}
 			//c.SetWriteDeadline(time.Now().Add())
 		}
+
+		ellapsed := time.Now().Sub(startedAt)
+		sleepDuration := delta - ellapsed
+		if sleepDuration > 0 {
+			time.Sleep(sleepDuration)
+		}
+
 	}
+	log.Println("wsH264 stop", runStatus)
 	log.Println("send over socket\n")
-	if Encoder != nil {
-		Encoder.Close()
+	time.Sleep(time.Second * 1)
+	if Encoder != nil && runStatus {
+		//Encoder.Close()
 	}
 }
