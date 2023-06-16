@@ -37,10 +37,11 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if num == 20 {
+			log.Println("initEncoders", num)
 			initEncoder()
 			num = 0
 		}
-
+		num++
 		files := FileWalk(path)
 		if len(files) >= 2 {
 			file := files[len(files)-2]
