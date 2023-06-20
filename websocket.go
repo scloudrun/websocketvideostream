@@ -18,13 +18,19 @@ var upgrader = websocket.Upgrader{
 } // use default options
 
 func wsNormalH264(w http.ResponseWriter, r *http.Request) {
+	if runStatus {
+		log.Print("runStatus true can't start")
+		return
+	}
+
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
 	defer c.Close()
-	Init()
+
+	initEncoder()
 	delta := time.Duration(1000/String2Int(frame)) * time.Millisecond
 	runStatus = true
 	num := 1
@@ -38,6 +44,7 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 
 		if num == 20 {
 			log.Println("initEncoders", num)
+			Encoder.Close()
 			initEncoder()
 			num = 0
 		}

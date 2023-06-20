@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"golang.org/x/net/websocket"
 	"websocket/internal/rdisplay"
 
 	"log"
@@ -21,41 +20,6 @@ var (
 	runStatus         bool
 	path, port, frame string
 )
-
-func wsH264(ws *websocket.Conn) {
-	Init()
-	runStatus = true
-	num := 1
-	diff := 1000 / String2Int(frame)
-	defer ws.Close()
-	for {
-		time.Sleep(time.Duration(diff) * time.Millisecond)
-
-		if num == 20 {
-			initEncoder()
-			num = 0
-		}
-
-		files := FileWalk(path)
-		if len(files) >= 2 {
-			file := files[len(files)-2]
-			fileByte, err := getEncode(file)
-			if err != nil || len(fileByte) == 0 {
-				continue
-			}
-			err = websocket.Message.Send(ws, fileByte)
-			if err != nil {
-				log.Println(err)
-				break
-			}
-		}
-	}
-	log.Println("send over socket\n")
-	if Encoder != nil && runStatus {
-		//Encoder.Close()
-		//runStatus = false
-	}
-}
 
 func close(w http.ResponseWriter, r *http.Request) {
 	if Encoder != nil && runStatus {
@@ -83,7 +47,6 @@ func main() {
 	}()
 
 	log.Println("init start", port, frame, path)
-	http.Handle("/api/wsh264", websocket.Handler(wsH264))
 	http.HandleFunc("/api/start", wsNormalH264)
 	http.Handle("/api/stop", http.HandlerFunc(close))
 	http.Handle("/", http.FileServer(http.Dir("./public")))
