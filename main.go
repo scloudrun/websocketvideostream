@@ -25,7 +25,7 @@ func close(w http.ResponseWriter, r *http.Request) {
 	if Encoder != nil && runStatus {
 		runStatus = false
 		fmt.Println("here close 1 ", time.Now().UnixNano(), runStatus)
-		Encoder.Close()
+		//Encoder.Close()
 		fmt.Println("here close 2 ", time.Now().UnixNano(), runStatus)
 	}
 	w.Write([]byte("close"))

@@ -35,10 +35,12 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 	runStatus = true
 	num := 1
 	log.Println("wsH264 start", runStatus)
+
 	for {
 		startedAt := time.Now()
 		if runStatus == false {
 			log.Println("runStatus false break")
+			Encoder.Close()
 			break
 		}
 
@@ -52,20 +54,20 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 		files := FileWalk(path)
 		if len(files) >= 2 {
 			file := files[len(files)-2]
+			if !runStatus {
+				continue
+			}
+
 			fileByte, err := getEncode(file)
 			if err != nil || len(fileByte) == 0 {
 				continue
 			}
+
 			err = c.WriteMessage(websocket.BinaryMessage, fileByte)
 			if err != nil {
 				log.Println("write:", err)
 				break
 			}
-			if err != nil {
-				log.Println(err)
-				break
-			}
-			//c.SetWriteDeadline(time.Now().Add())
 		}
 
 		ellapsed := time.Now().Sub(startedAt)
