@@ -4,8 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -30,7 +31,11 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	initEncoder()
+	if err = initEncoder(); err != nil {
+		log.Print("initEncoder:", err)
+		return
+	}
+
 	delta := time.Duration(1000/String2Int(frame)) * time.Millisecond
 	runStatus = true
 	num := 1
@@ -38,7 +43,7 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		startedAt := time.Now()
-		if runStatus == false {
+		if !runStatus {
 			log.Println("runStatus false break")
 			Encoder.Close()
 			break
@@ -51,6 +56,7 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 			num = 0
 		}
 		num++
+
 		files := FileWalk(path)
 		if len(files) >= 2 {
 			file := files[len(files)-2]
@@ -65,7 +71,7 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 
 			err = c.WriteMessage(websocket.BinaryMessage, fileByte)
 			if err != nil {
-				log.Println("write:", err)
+				log.Println("socket close write:", err)
 				break
 			}
 		}
@@ -77,10 +83,6 @@ func wsNormalH264(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	log.Println("wsH264 stop", runStatus)
-	log.Println("send over socket\n")
+	log.Println("wsH264 stop ,websocket stop", runStatus)
 	time.Sleep(time.Second * 1)
-	if Encoder != nil && runStatus {
-		//Encoder.Close()
-	}
 }

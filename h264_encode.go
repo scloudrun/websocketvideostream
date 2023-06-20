@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"image"
 	"image/draw"
 	"io/ioutil"
@@ -24,16 +23,6 @@ var (
 	Encoder encoders.Encoder
 )
 
-func Init() {
-	initEncoder()
-	_, err := Encoder.VideoSize()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-}
-
 func getEncode(v string) ([]byte, error) {
 	size, err := Encoder.VideoSize()
 	if err != nil {
@@ -48,7 +37,7 @@ func getEncode(v string) ([]byte, error) {
 	return payload, err
 }
 
-func initEncoder() {
+func initEncoder() error {
 	var (
 		err error
 		enc encoders.Service = &encoders.EncoderService{}
@@ -60,11 +49,12 @@ func initEncoder() {
 		screen.Bounds.Dy(),
 	}
 
-	Encoder, err = enc.NewEncoder(1, sourceSize, 10)
+	Encoder, err = enc.NewEncoder(1, sourceSize, String2Int(frame))
 	if err != nil {
-		panic(err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func resizeImage(src *image.RGBA, target image.Point) *image.RGBA {
@@ -122,64 +112,6 @@ func imageToRGBA(src image.Image) *image.RGBA {
 	dst := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
 	draw.Draw(dst, dst.Bounds(), src, b.Min, draw.Src)
 	return dst
-}
-
-func getHeaderByte(body []byte) (totalB []byte) {
-	dataLen := len(body)
-	for i := 0; i < 8; i++ {
-		var b []byte
-		if i == 7 {
-			b = Int32ToBytes(uint32(dataLen))
-		} else if i == 0 {
-			b = []byte("V#V#")
-		} else if i == 1 {
-			b = Int32ToBytes(120)
-		} else {
-			b = Int32ToBytes(1)
-		}
-		totalB = bytesMerge(totalB, b)
-	}
-	totalB = bytesMerge(totalB, body)
-	return
-}
-
-func getByteByImg(path string, typ int) (totalB []byte) {
-	data := readImg(path)
-	if data == nil || len(data) == 0 {
-		return totalB
-	}
-	dataLen := len(data)
-	for i := 0; i < 8; i++ {
-		var b []byte
-		if i == 7 {
-			b = Int32ToBytes(uint32(dataLen))
-		} else if i == 0 {
-			b = []byte("V#V#")
-		} else if i == 1 {
-			b = Int32ToBytes(120)
-		} else {
-			b = Int32ToBytes(1)
-		}
-		totalB = bytesMerge(totalB, b)
-	}
-	totalB = bytesMerge(totalB, data)
-	return
-}
-
-func readImg(path string) []byte {
-	f, err := os.Open(path)
-	if err != nil {
-		fmt.Println("read file fail", err)
-		return nil
-	}
-	defer f.Close()
-	fd, err := ioutil.ReadAll(f)
-	if err != nil {
-		fmt.Println("read to fd fail", err)
-		return nil
-	}
-
-	return fd
 }
 
 // BytesToUInt32 ...

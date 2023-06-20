@@ -12,7 +12,6 @@ import (
 // ShellToUse def
 const ShellToUse = "sh"
 const h264Path = "/data/local/tmp/h264mini"
-const h264EncPath = "/data/local/tmp/h264enc"
 
 var (
 	RunStatus  = false
@@ -38,9 +37,7 @@ func RunCommand(command string) (string, error) {
 func InitCrontab(frameCount int) {
 	fmt.Printf("Init runStatus[%v] openStatus[%v]\n\n", RunStatus, OpenStatus)
 	RemoveFile(h264Path)
-	//RemoveFile(h264EncPath)
 	CreateDir(h264Path)
-	//CreateDir(h264EncPath)
 	go remove()
 	delta := time.Duration(1000/frameCount) * time.Millisecond
 	signals := make(chan bool)
@@ -83,20 +80,6 @@ func remove() {
 				}
 			}
 		}
-		/**
-		files = FileWalk(h264EncPath)
-		if len(files) > 3 {
-			for k, v := range files {
-				if k >= len(files)-2 {
-					continue
-				}
-				err := RemoveFile(v)
-				if err != nil {
-					fmt.Printf("[err] : %v\n]", err)
-				}
-			}
-		}
-		**/
 		<-ticker.C
 	}
 }
