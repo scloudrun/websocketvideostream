@@ -28,6 +28,10 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
 
+func version(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(VERSION))
+}
+
 func main() {
 	flag.StringVar(&port, "port", "8020", "http port 8020")
 	flag.StringVar(&frame, "frame", "10", "frame default 10")
@@ -47,6 +51,7 @@ func main() {
 	http.HandleFunc("/api/start", wsNormalH264)
 	http.Handle("/api/stop", http.HandlerFunc(close))
 	http.Handle("/ping", http.HandlerFunc(ping))
+	http.Handle("/version", http.HandlerFunc(version))
 	http.Handle("/public", http.FileServer(http.Dir("./public")))
 
 	go rdisplay.InitCrontab(String2Int(frame))
